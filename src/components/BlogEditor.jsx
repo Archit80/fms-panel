@@ -1,32 +1,40 @@
 import PropTypes from 'prop-types';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
 function BlogEditor({ blog, onSave, onCancel }) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [image, setImage] = useState("");
-  const [tags, setTags] = useState("");
-  const [date, setDate] = useState("");
+  const [author, setAuthor] = useState("");
+  const [tags, setTags] = useState(blog ? blog.tags : []);
+  const [publishedDate, setPublishedDate] = useState("");
+  const quillRef = useRef(null);
 
   useEffect(() => {
-    if (blog) {
-      setTitle(blog.title || "");
-      setBody(blog.body || "");
-      setImage(blog.image || "");
-      setTags(blog.tags ? blog.tags.join(", ") : "");
-      setDate(blog.date || new Date().toISOString().split("T")[0]);
-    } else {
-      // Reset for new blog
+    console.group('BlogEditor Initialization');
+    console.log('Blog prop received:', blog);
+    
+    // Always reset state for new blog
+    if (!blog) {
+      console.log('Initializing NEW blog');
       setTitle("");
       setBody("");
-      setImage("");
-      setTags("");
-      setDate(new Date().toISOString().split("T")[0]);
+      setAuthor("");
+      setTags([]);
+      setPublishedDate(new Date().toISOString().split("T")[0]);
+    } else {
+      console.log('Initializing EXISTING blog');
+      setTitle(blog.title || "");
+      setBody(blog.body || "");
+      setAuthor(blog.author || "");
+      setTags(blog.tags || []);
+      setPublishedDate(blog.publishedDate || new Date().toISOString().split("T")[0]);
     }
+    
+    console.groupEnd();
   }, [blog]);
-
+  
   const handleSave = () => {
     // Validate inputs
     if (!title.trim()) {
@@ -35,15 +43,15 @@ function BlogEditor({ blog, onSave, onCancel }) {
     }
 
     const updatedBlog = {
-      id: blog ? blog.id : Date.now(),
       title: title.trim(),
       body: body.trim(),
-      image,
-      tags: tags.split(",").map((tag) => tag.trim()).filter(tag => tag),
-      date: date || new Date().toISOString().split("T")[0],
+      author,
+      tags: tags.length > 0 ? tags : ["defaultTag"],
+      publishedDate,
     };
 
-    onSave(updatedBlog);
+    console.log("Saving blog:", updatedBlog); // Debugging log
+    onSave(updatedBlog); // Call the onSave function passed from App
   };
 
   return (
@@ -68,52 +76,44 @@ function BlogEditor({ blog, onSave, onCancel }) {
         <div>
           <label htmlFor="body" className="block text-sm font-medium text-gray-700">Body</label>
           <ReactQuill 
+            ref={quillRef}
             value={body} 
             onChange={setBody} 
             className="h-64"
-            modules={{
-              toolbar: [
-                [{ 'header': [1, 2, false] }],
-                ['bold', 'italic', 'underline','strike', 'blockquote'],
-                [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
-                ['link', 'image'],
-                ['clean']
-              ]
-            }}
           />
         </div>
 
         <div>
-          <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image URL</label>
+          <label htmlFor="author" className="block text-sm font-medium text-gray-700">Author</label>
           <input
             type="text"
-            id="image"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
+            id="author"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            placeholder="Enter image URL (optional)"
+            placeholder="Enter author name"
           />
         </div>
 
         <div>
-          <label htmlFor="tags" className="block text-sm font-medium text-gray-700">Tags (comma-separated)</label>
+          <label htmlFor="tags" className="block text-sm font-medium text-gray-700">Tags</label>
           <input
             type="text"
             id="tags"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
+            value={tags.map(tag => tag.tagName).join(', ')} // Display tag names
+            onChange={(e) => setTags(e.target.value.split(',').map(tag => ({ tagName: tag.trim() })))}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            placeholder="Enter tags (optional)"
+            placeholder="Enter tags separated by commas"
           />
         </div>
 
         <div>
-          <label htmlFor="date" className="block text-sm font-medium text-gray-700">Date</label>
+          <label htmlFor="publishedDate" className="block text-sm font-medium text-gray-700">Published Date</label>
           <input
             type="date"
-            id="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
+            id="publishedDate"
+            value={publishedDate}
+            onChange={(e) => setPublishedDate(e.target.value)}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           />
         </div>
@@ -141,12 +141,14 @@ function BlogEditor({ blog, onSave, onCancel }) {
 
 BlogEditor.propTypes = {
   blog: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    id: PropTypes.number,
     title: PropTypes.string,
     body: PropTypes.string,
-    image: PropTypes.string,
-    tags: PropTypes.arrayOf(PropTypes.string),
-    date: PropTypes.string
+    author: PropTypes.string,
+    tags: PropTypes.arrayOf(PropTypes.shape({
+      tagName: PropTypes.string,
+    })),
+    publishedDate: PropTypes.string
   }),
   onSave: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired

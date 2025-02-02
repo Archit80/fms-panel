@@ -1,85 +1,73 @@
-import { useSelector } from "react-redux";
+import React from "react";
+import PropTypes from 'prop-types';
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
-function BlogList({ onEditBlog, onDeleteBlog }) {
-  const blogs = useSelector((state) => state.blogs);
-
-  const handleAddNewBlog = () => {
-    const newBlog = {
-      id: Date.now(), // Use timestamp as a unique ID
-      title: "",      // Empty title to encourage user input
-      body: "",
-      image: "",
-      tags: [],
-      date: new Date().toISOString().split("T")[0],
-    };
-    onEditBlog(newBlog); // Open the editor for the new blog
-  };
-
+function BlogList({ blogs, onEditBlog, selectedBlog, onDeleteBlog, onCreateNewBlog }) {
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900">Blogs</h2>
-        <button
-          onClick={handleAddNewBlog}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-        >
-          Add New Blog
-        </button>
-      </div>
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold">Blogs</h2>
+      <br />
+      <button
+                onClick={ () => {
+                  onCreateNewBlog(); // Ensure it's calling the function from App.jsx
+                  console.log( `selectedBlog is ${selectedBlog}`);
+                }}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Create New Blog
+      </button>
+      <br />
+      <br />
       {blogs.length === 0 ? (
-        <div className="text-center text-gray-500 py-10">
-          No blogs found. Click "Add New Blog" to get started.
-        </div>
+        <div className="text-center text-gray-500">No blogs found</div>
       ) : (
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {blogs.map((blog) => (
-                <tr key={blog.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">{blog.title || 'Untitled'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{blog.date}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {blog.tags && blog.tags.length > 0 
-                      ? blog.tags.join(', ') 
-                      : 'No tags'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap flex space-x-2">
-                    <button 
-                      onClick={() => onEditBlog(blog)}
-                      className="text-blue-600 hover:text-blue-900"
-                      title="Edit Blog"
-                    >
-                      <PencilIcon className="h-5 w-5" />
-                    </button>
-                    <button 
-                      onClick={() => {
-                        if (window.confirm('Are you sure you want to delete this blog?')) {
-                          onDeleteBlog(blog.id);
-                        }
-                      }}
-                      className="text-red-600 hover:text-red-900"
-                      title="Delete Blog"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {blogs.map((blog) => (
+            <div key={blog.id} className="bg-white border rounded-lg p-4 shadow-md">
+              <h3 className="text-xl font-semibold mb-2">{blog.title}</h3>
+              <p className="text-gray-600 mb-2">{blog.body.substring(0, 100)}...</p>
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col">
+                  <span className="text-sm text-gray-500">Published: {blog.publishedDate || 'Unknown'}</span>
+                  <span className="text-sm text-gray-500">Author: {blog.author || 'Unknown'}</span>
+                </div>
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={() => onEditBlog(blog)}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <PencilIcon className="h-5 w-5" />
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to delete this blog?')) {
+                        onDeleteBlog(blog.id);
+                      }
+                    }}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <TrashIcon className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
   );
 }
+
+BlogList.propTypes = {
+  blogs: PropTypes.array.isRequired,
+  onEditBlog: PropTypes.func.isRequired,
+  onDeleteBlog: PropTypes.func.isRequired,
+  onCreateNewBlog: PropTypes.func.isRequired,
+  selectedBlog: PropTypes.object
+};
+
+BlogList.defaultProps = {
+  selectedBlog: null
+};
 
 export default BlogList;
