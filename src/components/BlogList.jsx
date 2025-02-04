@@ -5,8 +5,8 @@ import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 function BlogList({ blogs, onEditBlog, selectedBlog, onDeleteBlog, onCreateNewBlog }) {
   return (
     <div className="container mx-auto p-4">
+      <div className="w-full flex justify-between">
       <h2 className="text-2xl font-bold">Blogs</h2>
-      <br />
       <button
                 onClick={ () => {
                   onCreateNewBlog(); // Ensure it's calling the function from App.jsx
@@ -16,6 +16,7 @@ function BlogList({ blogs, onEditBlog, selectedBlog, onDeleteBlog, onCreateNewBl
               >
                 Create New Blog
       </button>
+      </div>
       <br />
       <br />
       {blogs.length === 0 ? (

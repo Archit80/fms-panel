@@ -2,33 +2,56 @@ import PropTypes from 'prop-types';
 import { useState, useEffect, useRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import Select from "react-select"; // Import react-select
+import tagsApi from '../services/tagsApi'; // Import the tags API
 
 function BlogEditor({ blog, onSave, onCancel }) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [author, setAuthor] = useState("");
-  const [tags, setTags] = useState(blog ? blog.tags : []);
   const [publishedDate, setPublishedDate] = useState("");
+  const [tags, setTags] = useState([]);  // Tags in { value, label } format
+  const [selectedTags, setSelectedTags] = useState([]);
   const quillRef = useRef(null);
 
   useEffect(() => {
     console.group('BlogEditor Initialization');
     console.log('Blog prop received:', blog);
     
-    // Always reset state for new blog
+    const fetchTags = async () => {
+      try {
+        const response = await tagsApi.getAllTags(); // Fetch tags from API
+        const tagsFromApi = response.data; // Your response data (the array of { tagName: '...' })
+        
+        // Convert to { value, label } format
+        const transformedTags = tagsFromApi.map(tag => ({
+          value: tag.tagName,
+          label: tag.tagName
+        }));
+
+        setTags(transformedTags);  // Set the tags in state
+      } catch (error) {
+        console.error("Failed to fetch tags", error);
+      }
+    };
+
+    fetchTags(); // Call fetchTags on component mount
+
+    // Reset state for new blog
     if (!blog) {
       console.log('Initializing NEW blog');
       setTitle("");
       setBody("");
       setAuthor("");
-      setTags([]);
+      setSelectedTags([]);
       setPublishedDate(new Date().toISOString().split("T")[0]);
     } else {
       console.log('Initializing EXISTING blog');
       setTitle(blog.title || "");
       setBody(blog.body || "");
       setAuthor(blog.author || "");
-      setTags(blog.tags || []);
+      // Set selectedTags using the format { value, label }
+      setSelectedTags(blog.tags.map(tag => ({ value: tag.tagName, label: tag.tagName })) || []);
       setPublishedDate(blog.publishedDate || new Date().toISOString().split("T")[0]);
     }
     
@@ -46,7 +69,8 @@ function BlogEditor({ blog, onSave, onCancel }) {
       title: title.trim(),
       body: body.trim(),
       author,
-      tags: tags.length > 0 ? tags : ["defaultTag"],
+      // Map selected tags to match the format expected by backend: [ { tagName: "tag" } ]
+      tags: selectedTags.map(tag => ({ tagName: tag.value })),
       publishedDate,
     };
 
@@ -55,11 +79,11 @@ function BlogEditor({ blog, onSave, onCancel }) {
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6">
+    <div className="bg-white shadow-md rounded-lg p-6 w-full mx-auto">
       <h2 className="text-2xl font-semibold text-gray-900 mb-6">
         {blog ? "Edit Blog" : "Create New Blog"}
       </h2>
-      <div className="space-y-4">
+      <div className="flex flex-col gap-2 px-4 w-full">
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
           <input
@@ -79,7 +103,7 @@ function BlogEditor({ blog, onSave, onCancel }) {
             ref={quillRef}
             value={body} 
             onChange={setBody} 
-            className="h-64"
+            className="h-1/3"
           />
         </div>
 
@@ -97,13 +121,15 @@ function BlogEditor({ blog, onSave, onCancel }) {
 
         <div>
           <label htmlFor="tags" className="block text-sm font-medium text-gray-700">Tags</label>
-          <input
-            type="text"
+          <Select
             id="tags"
-            value={tags.map(tag => tag.tagName).join(', ')} // Display tag names
-            onChange={(e) => setTags(e.target.value.split(',').map(tag => ({ tagName: tag.trim() })))}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            placeholder="Enter tags separated by commas"
+            isMulti  // For multiple selection
+            options={tags}  // Use the { value, label } tags array
+            value={selectedTags}  // The selected tags
+            onChange={(selected) => setSelectedTags(selected)}  // Handle changes
+            getOptionLabel={(e) => e.label}  // Use the label property to display the tag
+            getOptionValue={(e) => e.value}  // Use the value property to store the tag
+            className="mt-1 block w-full"
           />
         </div>
 
