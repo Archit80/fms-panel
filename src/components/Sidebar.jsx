@@ -13,7 +13,7 @@ function Sidebar() {
           <AcademicCapIcon className="h-5 w-5 inline-block mr-2" />
           Schools
         </Link>
-        <Link to="/" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">
+        <Link to="/blogs" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">
           <BookOpenIcon className="h-5 w-5 inline-block mr-2" />
           Blogs
         </Link>

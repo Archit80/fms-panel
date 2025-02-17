@@ -166,7 +166,7 @@ const FeeForm = ({ school, onSave, onClose }) => {
         <div className='w-full flex gap-4'>
         <input 
           type="text" 
-          value={othersFees.fees} 
+          value={othersFees.fees}
           onChange={(e) => setOthersFees({ ...othersFees, fees: e.target.value })} 
           placeholder="Fees" 
           className="border border-gray-300 rounded-md p-2 w-full"

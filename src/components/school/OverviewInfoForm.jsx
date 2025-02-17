@@ -117,24 +117,25 @@ const OverviewInfoForm = ({ onSave, onClose, school }) => {
           required
         />
 
-        {/* <input 
+        <input 
           type="url" 
-          value={videoLink} 
-          onChange={(e) => setVideoLink(e.target.value)} 
+          // value={videoLink} 
+          // onChange={(e) => setVideoLink(e.target.value)} 
           placeholder="Video Link" 
           className="border border-gray-300 rounded-md p-2 w-full"
         />
-        <input 
+        {/* <input 
           type="url" 
           // value={schoolWebsite} 
           // onChange={(e) => setSchoolWebsite(e.target.value)} 
           placeholder="School Website" 
           className="border border-gray-300 rounded-md p-2 w-full"
         /> */}
-      </div>
       <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-bold w-1/2 py-2 px-4 rounded">
           Save Overview Information
-        </button>
+      </button>
+      
+      </div>
     </form>
     
   )

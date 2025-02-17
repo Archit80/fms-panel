@@ -60,7 +60,7 @@ const TagList = () => {
 
   useEffect(() => {
     fetchTags(); // Fetch tags when the component mounts
-  }, [tags]);
+  }, []);
 
   return (
     <div className="container w-full mx-auto p-4">

@@ -66,6 +66,7 @@ const SchoolsList = ({ onEditSchool }) => {
           Add New School
         </button>
       </div>
+        <h1 className='text-xl'>Total Schools : {schools.length}</h1>
       <br />
       {schools.length === 0 ? (
         <div className="text-center text-gray-500">No schools found</div>
