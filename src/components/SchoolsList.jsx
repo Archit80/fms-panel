@@ -1,17 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import schoolApi from '../services/schoolApi'; // This should work now
 import SchoolEditor from './SchoolEditor'; // Import the SchoolEditor component
+import { useAuth } from "../context/AuthContext";
 
 const SchoolsList = ({ onEditSchool }) => {
+  const { token } = useAuth(); // Get token from context
+
   const [schools, setSchools] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [currentSchool, setCurrentSchool] = useState(null);
   const [refresh, setRefresh] = useState(false); // State to trigger fetch
 
-  const fetchSchools = async () => {
+  const fetchSchools = useCallback(async () => {
     try {
-      const response = await schoolApi.getAllSchools();
+      if (!token) {
+        console.error("No token found! Please login.");
+        alert('You are not permitted to access this page');
+        return;
+      }
+      const response = await schoolApi.getAllSchools(token);
       if (response.code === 200 && Array.isArray(response.data)) {
         setSchools(response.data);
       } else {
@@ -20,8 +28,9 @@ const SchoolsList = ({ onEditSchool }) => {
     } catch (error) {
       console.error("Failed to fetch schools", error);
     }
-  };
+  }, [token]);
 
+ 
   const handleEditSchool = (school) => {
     onEditSchool(school); // Call the passed function to edit the school
   };
@@ -33,7 +42,7 @@ const SchoolsList = ({ onEditSchool }) => {
 
   useEffect(() => {
     fetchSchools(); // Fetch schools whenever refresh changes
-  }, [refresh]); // Depend on refresh state
+  }, [fetchSchools]); // Depend on refresh state
 
   const handleSchoolUpdated = () => {
     setRefresh(prev => !prev); // Toggle refresh state to trigger fetch
@@ -45,7 +54,7 @@ const SchoolsList = ({ onEditSchool }) => {
       setSchools(prevSchools => prevSchools.filter(school => school.id !== schoolId));
 
       try {
-        await schoolApi.deleteSchoolById(schoolId); // Call delete function
+        await schoolApi.deleteSchoolById(token, schoolId); // Call delete function
         handleSchoolUpdated(); // Trigger refresh after deletion
       } catch (error) {
         console.error("Failed to delete school", error);
@@ -72,9 +81,9 @@ const SchoolsList = ({ onEditSchool }) => {
         <div className="text-center text-gray-500">No schools found</div>
       ) : (
         <div className="flex flex-col gap-2">
-          {schools.map((school) => (
+          {schools.map((school,index) => (
             <div key={school.id} className="bg-white border flex gap-8 w-full h-fit rounded-md p-4 shadow-sm">
-              <h3 className="text-lg font-semibold">{school.schoolName}</h3>
+              <h3 className="text-lg font-semibold">{index+1}. {school.schoolName}</h3>
               {/* <p className="text-gray-600 mb-1">{school.content}</p> */}
               <div className="flex justify-between gap-4 items-center">
                 <button 

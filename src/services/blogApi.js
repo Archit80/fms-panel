@@ -1,5 +1,4 @@
 import axios from 'axios';
-
 const BASE_URL = 'http://localhost:8080/api/v1/blogs';
 
 const api = axios.create({
@@ -10,10 +9,20 @@ const api = axios.create({
   }
 });
 
+// Function to attach the token in headers
+const setAuthHeader = (token) => {
+  if (token) {
+    api.defaults.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete api.defaults.headers.Authorization; // Remove auth header if no token
+  }
+};
+
 export const blogApi = {
-  getAllBlogs: async () => {
+  getAllBlogs: async (token) => {
     try {
-      const response = await api.get('/get-all-blogs?pageSize=10');
+      setAuthHeader(token);
+      const response = await api.get('/public/get-all-blogs?pageSize=50');
       console.log("Fetched blogs:", response.data);
       return response.data;
     } catch (error) {
@@ -22,10 +31,12 @@ export const blogApi = {
     }
   },
   
-  createBlog: async (blogData) => {
+  createBlog: async (token, blogData) => {
     try {
+      setAuthHeader(token);
+      console.log('using Token', token);
       console.log("📤 Sending blog data for creation:", JSON.stringify(blogData, null, 2));
-      const response = await api.post('/blog', blogData);
+      const response = await api.post('/private/blog', blogData);
       console.log("✅ Blog created successfully:", response.data);
       return response.data;
     } catch (error) {
@@ -34,14 +45,12 @@ export const blogApi = {
     }
   },
   
-  updateBlog: async (blogId, blogData) => {
+  updateBlog: async (token, blogId, blogData) => {
     try {
+      setAuthHeader(token);
       console.log(`🔄 Attempting to UPDATE blog with ID: ${blogId}`);
       console.log("📤 Update blog data:", JSON.stringify(blogData, null, 2));
-      
-      // Ensure the endpoint matches the backend expectation
-      const response = await api.put(`/blog?id=${blogId}`, blogData);
-      
+      const response = await api.put(`/private/blog?id=${blogId}`, blogData);
       console.log("✅ Blog updated successfully:", response.data);
       return response.data;
     } catch (error) {
@@ -52,9 +61,10 @@ export const blogApi = {
     }
   },
   
-  deleteBlogById: async (id) => {
+  deleteBlogById: async (token, id) => {
     try {
-      const response = await api.delete(`/blog?id=${id}`);
+      setAuthHeader(token);
+      const response = await api.delete(`/private/blog?id=${id}`);
       console.log(`Blog with ID ${id} deleted successfully`);
       return response.data;
     } catch (error) {

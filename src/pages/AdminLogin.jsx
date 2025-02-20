@@ -1,36 +1,49 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import authApi from "../services/authApi";
+import { useNavigate } from "react-router-dom";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
-
+  const { login, setToken } = useAuth(); // Get both functions from AuthContext
+  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-  };
+   
+  
+    const handleChange = (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
 
-  const handleSubmit = (e) => {
+    // setToken(token); // Store token in context
+
+
+  
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your login logic here
-    if (formData.email === 'archit' && formData.password === '123456') {
-      // alert('Login Successful');
-      navigate('/blogs'); // Redirect to /blogs after successful login
-    } else {
-      alert('Invalid Credentials');
-    }
+ 
+    try {
+      const token = await authApi.login(formData); // Await the login response
+      login(token); // Set the token in context
+      setToken(token);
+      // if (onLogin) {
+      //   onLogin(); // Call onLogin only if token is present
+      // }
+      console.log("✅ Logged in successfully!");
+
+      navigate('/blogs'); // Navigate to the blogs page
+    } catch (error) {
+      alert('Email or password wrong');
+      console.error("Failed to Login", error);
+    } finally {
     console.log('Form submitted:', formData);
+    }
   };
-
-
 
   return (
     <div className="relative min-h-screen flex items-center justify-center">

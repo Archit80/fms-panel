@@ -10,10 +10,21 @@ const api = axios.create({
   }
 });
 
+// Function to attach the token in headers
+const setAuthHeader = (token) => {
+  if (token) {
+    api.defaults.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete api.defaults.headers.Authorization; // Remove auth header if no token
+  }
+};
+
+
 const schoolApi = {
-  getAllSchools: async () => {
+  getAllSchools: async (token) => {
     try {
-      const response = await api.get('/get-all-schools?pageSize=100&pageNumber=0');
+      setAuthHeader(token);
+      const response = await api.get('/public/get-all-schools?pageSize=100&pageNumber=0');
       console.log("Fetched Schools:", response.data);
       return response.data;
     } catch (error) {
@@ -22,10 +33,11 @@ const schoolApi = {
     }
   },
   
-  createSchool: async (schoolData) => {
+  createSchool: async (token, schoolData) => {
     try {
+      setAuthHeader(token);
     //   console.log("📤 Sending blog data for creation:", JSON.stringify(blogData, null, 2));
-      const response = await api.post('/submit-basic-details', schoolData);
+      const response = await api.post('/private/submit-basic-details', schoolData);
       console.log("School created successfully:", response.data);
       return response.data;
     } catch (error) {
@@ -34,13 +46,38 @@ const schoolApi = {
     }
   },
   
-  updateOverview : async (schoolId, overviewData) => {
+  updateSchoolName: async (token, schoolId, newName) => {
     try {
-   
-      const response = await api.put(`/submit-overview/${schoolId}`, overviewData);
+      setAuthHeader(token);
+    //   console.log("📤 Sending blog data for creation:", JSON.stringify(blogData, null, 2));
+      const response = await api.put(`/private/change-school-name/${schoolId}?newName=${newName}`);
+      console.log("School name updated successfully:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating SchoolName:", error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
+  updateSchool: async (token, schoolId, schoolData) => {
+    try {
+      setAuthHeader(token);
+    //   console.log("📤 Sending blog data for creation:", JSON.stringify(blogData, null, 2));
+      const response = await api.put(`/private/update-basic-details/${schoolId}`, schoolData);
+      console.log("School updated successfully:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating School:", error.response ? error.response.data : error.message);
+      throw error;
+    }
+  },
+  
+  updateOverview : async (token, schoolId, overviewData) => {
+    try {
+      setAuthHeader(token);
+      const response = await api.put(`/private/submit-overview/${schoolId}`, overviewData);
       
       console.log("Overview updated successfully:", response.data);
-      return response.data;s
+      return response.data;
     } catch (error) {
       console.error(`Error updating overview for school with ID ${schoolId}:`, 
         error.response ? JSON.stringify(error.response.data) : error.message
@@ -50,10 +87,10 @@ const schoolApi = {
     
   },
 
-  updateFacilities : async (schoolId, facilitiesData) => {
+  updateFacilities : async (token, schoolId, facilitiesData) => {
     try {
-   
-      const response = await api.put(`/submit-facilities/${schoolId}`, facilitiesData);
+      setAuthHeader(token);
+      const response = await api.put(`/private/submit-facilities/${schoolId}`, facilitiesData);
       
       console.log("Facilities section updated successfully:", response.data);
       return response.data;
@@ -65,9 +102,23 @@ const schoolApi = {
     }
   },
 
-  addClassDetail : async(schoolId, classData) => {
+  getClassDetails : async(token, schoolId, className) => {
     try {
-        const response = await api.put(`/add-class-detail/${schoolId}`, classData);
+      setAuthHeader(token);
+        const response = await api.get(`/public/${schoolId}/get-class-details?className=${className}`);
+        console.log("Class detail fetched successfully:", response.data);
+        return response.data;
+        } catch (error) {
+            console.error(`Error fetching Sclass detail for school with ID ${schoolId}:`,
+                error.response ? JSON.stringify(error.response.data) : error.message
+            );
+            throw error;
+        }
+    },
+  addClassDetail : async(token, schoolId, classData) => {
+    try {
+      setAuthHeader(token);
+        const response = await api.put(`/private/${schoolId}/add-class-detail`, classData);
         console.log("Class detail added successfully:", response.data);
         return response.data;
         } catch (error) {
@@ -78,9 +129,10 @@ const schoolApi = {
         }
     },
 
-  updateClassDetail : async(schoolId, classData, className) => {
+  updateClassDetail : async(token, schoolId, classData, className) => {
     try {
-        const response = await api.put(`/${schoolId}/update-class-details?className=${className}`, classData);
+      setAuthHeader(token);
+        const response = await api.put(`/private/${schoolId}/update-class-details?className=${className}`, classData);
         console.log("Class detail updated successfully:", response.data);
         return response.data;
         } catch (error) {
@@ -91,22 +143,39 @@ const schoolApi = {
         }
     },
   
-  updateClassEligibsility : async(schoolId, classEligibilityData, className) => {
+  getClassEligibility : async(token, schoolId, className) => {
     try {
-        const response = await api.put(`/${schoolId}/submit-eligibility/${className}`, classEligibilityData);
-        console.log("Class eligibility updated successfully:", response.data);
+      setAuthHeader(token);
+        const response = await api.get(`/public/${schoolId}/get-class-eligibility?className=${className}`);
+        console.log("Class eligibility fetched successfully:", response.data);
         return response.data;
         } catch (error) {
-            console.error(`Error updating class eligibility for school with ID ${schoolId}:`,
+            console.error(`Error fetching class eligibility for school with ID ${schoolId}:`,
                 error.response ? JSON.stringify(error.response.data) : error.message
             );
             throw error;
         }
     },
 
-    deleteSchoolById: async (id) => {
+    updateClassEligibility: async (token, schoolId, className, classEligibilityData) => {
+      try {
+        setAuthHeader(token);
+        const response = await api.put(`/private/${schoolId}/submit-eligibility/${className}`, classEligibilityData);
+        console.log("Class eligibility updated successfully:", response.data);
+        return response.data;
+      } catch (error) {
+        console.error(`Error updating class eligibility for school with ID ${schoolId}:`,
+          error.response ? JSON.stringify(error.response.data) : error.message
+        );
+        throw error;
+      }
+    },
+    
+
+    deleteSchoolById: async (token, id) => {
     try {
-      const response = await api.delete(`/school/${id}`);
+      setAuthHeader(token);
+      const response = await api.delete(`/private/school/${id}`);
       console.log(`School with ID ${id} deleted successfully`);
       return response.data;
     } catch (error) {

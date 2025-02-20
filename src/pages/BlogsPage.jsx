@@ -1,29 +1,40 @@
 import BlogList from "../components/BlogList";
 import BlogEditor from "../components/BlogEditor";
 import { blogApi } from "../services/blogApi";
-import { React, useState, useEffect } from "react";
-
+import { React, useState, useEffect, useCallback } from "react";
+import { useAuth } from "../context/AuthContext";
 
 const BlogsPage = () => {
+  const { token } = useAuth(); // Get token from context
+
     const [selectedBlog, setSelectedBlog] = useState(null);
     const [blogs, setBlogs] = useState([]);
   
-    const fetchBlogs = async () => {
-      try {
-        const response = await blogApi.getAllBlogs();
-        if (Array.isArray(response.data)) {
-          setBlogs(response.data);
-        } else {
-          throw new Error("Expected an array of blogs");
+    
+    // useEffect(() => {
+      //   fetchBlogs();
+      // }, []);
+      const fetchBlogs = useCallback(async () => {
+        try {
+          if (!token) {
+            console.error("No token found! Please login.");
+            return;
+          }
+          const response = await blogApi.getAllBlogs(token);  // Pass token
+          if (Array.isArray(response.data)) {
+            setBlogs(response.data);
+          } else {
+            throw new Error("Expected an array of blogs");
+          }
+        } catch (error) {
+          console.error("Failed to fetch blogs", error);
         }
-      } catch (error) {
-        console.error("Failed to fetch blogs", error);
-      }
-    };
-  
-    useEffect(() => {
-      fetchBlogs();
-    }, []);
+      }, [token]);
+    
+      useEffect(() => {
+        fetchBlogs();
+      }, [token, fetchBlogs]);  // Re-fetch when token changes
+    
   
     const handleEditBlog = (blog) => {
       console.log('Editing blog:', blog);
@@ -75,11 +86,11 @@ const BlogsPage = () => {
         if (selectedBlog && selectedBlog.id) {
           // Existing blog - use updateBlog
           console.log(`Updating existing blog with ID: ${selectedBlog.id}`);
-          await blogApi.updateBlog(selectedBlog.id, updatedBlog);
+          await blogApi.updateBlog(token, selectedBlog.id, updatedBlog);
         } else {
           // New blog - use createBlog
           console.log('Creating new blog');
-          await blogApi.createBlog(updatedBlog);
+          await blogApi.createBlog(token, updatedBlog);
         }
   
         // Refresh blogs after save
@@ -118,7 +129,7 @@ const BlogsPage = () => {
   
     const handleDeleteBlog = async (blogId) => {
       try {
-        await blogApi.deleteBlogById(blogId);
+        await blogApi.deleteBlogById(token, blogId);
         await fetchBlogs();
       } catch (error) {
         console.error("Failed to delete blog", error);
@@ -126,6 +137,7 @@ const BlogsPage = () => {
     };
   
     return (
+      (token) ? (
       <div className="flex font-jakarta h-screen bg-gray-100">
        
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -157,7 +169,11 @@ const BlogsPage = () => {
             </div>
           </main>
         </div>
-      </div>
+      </div>) : (
+        <div className='flex h-screen w-full bg-gray-50 absolute z-20 left-0 justify-center items-center'>
+          <h1 className='text-3xl font-bold'>You need to login to be able to access this page</h1>
+        </div>
+      )
     );
 }
 

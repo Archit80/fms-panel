@@ -1,17 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import schoolApi from '../../services/schoolApi'; // Import the schoolApi
 import PropTypes from 'prop-types';
+import { useAuth } from "../../context/AuthContext";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const FacilitiesForm = ({ onSave, onClose, school }) => {
-  const [classFacilities, setClassFacilities] = useState(school ? school.classFacilities : '');
-  const [boarding, setBoarding] = useState(school ? school.boarding : '');
-  const [infrastructure, setInfrastructure] = useState(school ? school.infrastructure : '');
-  const [safety, setSafety] = useState(school ? school.safety : '');
-  const [advanceFacilities, setAdvanceFacilities] = useState(school ? school.advanceFacilities : '');
-  const [extraCurricular, setExtraCurricular] = useState(school ? school.extraCurricular : '');
-  const [sports, setSports] = useState(school ? school.sports : '');
-  const [lab, setLab] = useState(school ? school.lab : '');
-  const [disabledFriendly, setDisabledFriendly] = useState(school ? school.disabledFriendly : 'no');
+  const { token } = useAuth(); // Get token from context
+
+  // Initialize state variables
+  const [classFacilities, setClassFacilities] = useState('');
+  const [boarding, setBoarding] = useState('');
+  const [infrastructure, setInfrastructure] = useState('');
+  const [safety, setSafety] = useState('');
+  const [advanceFacilities, setAdvanceFacilities] = useState('');
+  const [extraCurricular, setExtraCurricular] = useState('');
+  const [sports, setSports] = useState('');
+  const [lab, setLab] = useState('');
+  const [disabledFriendly, setDisabledFriendly] = useState(false);
+
+  // Effect to update state when school data changes
+  useEffect(() => {
+    if (school) {
+      setClassFacilities(school.classFacilities || '');
+      setBoarding(school.boarding || '');
+      setInfrastructure(school.infrastructure || '');
+      setSafety(school.safety || '');
+      setAdvanceFacilities(school.advanceFacilities || '');
+      setExtraCurricular(school.extraCurricular || '');
+      setSports(school.sports || '');
+      setLab(school.lab || '');
+      setDisabledFriendly(school.disabledFriendly || false);
+    }
+  }, [school]); // Run whenever school changes
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,26 +45,35 @@ const FacilitiesForm = ({ onSave, onClose, school }) => {
       extraCurricular,
       sports,
       lab,
-      disabledFriendly,
+      disabledFriendly : Boolean(disabledFriendly),
     };
 
-    console.log("Submitting facilities data:", facilitiesData);
-    await schoolApi.updateFacilities(school.id, facilitiesData)
-    onSave(); // Call onSave to refresh the list or perform any other action
-    onClose(); // Close the form after submission
+    try {
+      await schoolApi.updateFacilities(token, school.id, facilitiesData);
+      toast.success("Facilities successfully updated!");
+      // onSave(); // Refresh the list or perform any other action
+      // onClose(); // Close the form after submission
+    } catch (error) {
+      console.error("Error updating facilities:", error);
+      toast.error("Failed to update facilities. Try again.");
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white h-full rounded-lg shadow p-6">
+      <ToastContainer position="top-right" autoClose={5000} />
+
       <h3 className="text-lg font-semibold mb-4">Facilities</h3>
       <div className="space-y-4">
         <input 
           type="text" 
+          required
           value={classFacilities} 
           onChange={(e) => setClassFacilities(e.target.value)} 
           placeholder="Class Facilities" 
           className="border border-gray-300 rounded-md p-2 w-full"
         />
+
         <div className="flex items-center">
           <label className="mr-4">Boarding:</label>
           <select 
@@ -59,15 +89,16 @@ const FacilitiesForm = ({ onSave, onClose, school }) => {
 
         <input 
           type="text" 
+          required
           value={infrastructure} 
           onChange={(e) => setInfrastructure(e.target.value)} 
           placeholder="Infrastructure" 
           className="border border-gray-300 rounded-md p-2 w-full"
         />
 
-     
         <input 
           type="text" 
+          required
           value={advanceFacilities} 
           onChange={(e) => setAdvanceFacilities(e.target.value)} 
           placeholder="Advanced Facilities" 
@@ -76,6 +107,7 @@ const FacilitiesForm = ({ onSave, onClose, school }) => {
 
         <input 
           type="text" 
+          required
           value={extraCurricular} 
           onChange={(e) => setExtraCurricular(e.target.value)} 
           placeholder="Extracurricular Activities" 
@@ -85,6 +117,7 @@ const FacilitiesForm = ({ onSave, onClose, school }) => {
         <input 
           type="text" 
           value={sports} 
+          required
           onChange={(e) => setSports(e.target.value)} 
           placeholder="Sports and Fitness" 
           className="border border-gray-300 rounded-md p-2 w-full"
@@ -93,6 +126,7 @@ const FacilitiesForm = ({ onSave, onClose, school }) => {
         <input 
           type="text" 
           value={lab} 
+          required
           onChange={(e) => setLab(e.target.value)} 
           placeholder="Lab Facilities" 
           className="border border-gray-300 rounded-md p-2 w-full"
@@ -100,6 +134,7 @@ const FacilitiesForm = ({ onSave, onClose, school }) => {
 
         <input 
           type="text" 
+          required
           value={safety} 
           onChange={(e) => setSafety(e.target.value)} 
           placeholder="Safety and Security" 
@@ -113,8 +148,8 @@ const FacilitiesForm = ({ onSave, onClose, school }) => {
             onChange={(e) => setDisabledFriendly(e.target.value)} 
             className="border border-gray-300 rounded-md p-2"
           >
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
+            <option value= {true} >Yes</option>
+            <option value={false}>No</option>
           </select>
         </div>
       </div>
