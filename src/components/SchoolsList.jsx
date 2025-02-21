@@ -36,7 +36,7 @@ const SchoolsList = ({ onEditSchool }) => {
 
     useEffect(() => {
         fetchSchools();
-    }, [fetchSchools]);
+    }, [fetchSchools, totalSchools]);
 
     const handleSchoolUpdated = () => {
         setRefresh(prev => !prev);
@@ -44,6 +44,8 @@ const SchoolsList = ({ onEditSchool }) => {
 
     const handleDeleteSchool = async (schoolId) => {
         if (window.confirm('Are you sure you want to delete this school?')) {
+            let x = totalSchools-1;
+            setTotalSchools(x);
             setSchools(prevSchools => prevSchools.filter(school => school.id !== schoolId));
             try {
                 await schoolApi.deleteSchoolById(token, schoolId);
