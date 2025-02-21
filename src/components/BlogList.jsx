@@ -23,7 +23,7 @@ function BlogList({onEditBlog, selectedBlog, onDeleteBlog, onCreateNewBlog}) {
 
     useEffect(() => {
         fetchBlogs();
-    }, [pageNumber]);
+    }, [pageNumber, totalBlogs]);
 
     return (
         <div className="container mx-auto p-4">
@@ -68,6 +68,8 @@ function BlogList({onEditBlog, selectedBlog, onDeleteBlog, onCreateNewBlog}) {
                                         onClick={() => {
                                             if (window.confirm('Are you sure you want to delete this blog?')) {
                                                 onDeleteBlog(blog.id);
+                                                let x = totalBlogs-1;
+                                                setTotalBlogs(x);
                                             }
                                         }}
                                         className="text-red-500 hover:text-red-700"
