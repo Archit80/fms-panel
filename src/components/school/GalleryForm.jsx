@@ -4,6 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import imageApi from '../../services/imageApi'; // Ensure you import the imageApi
 import { useAuth } from "../../context/AuthContext";
 import PropTypes from 'prop-types';
+import { Trash2 } from "lucide-react"; // Importing the trash icon
 
 const GalleryForm = ({ school }) => {
   
@@ -20,6 +21,7 @@ const GalleryForm = ({ school }) => {
     if (school?.id) {
       getMainImage();
       getGalleryImages();
+      // console.log(galleryImages);
     }
   }, [school?.id]);
 
@@ -129,6 +131,27 @@ const GalleryForm = ({ school }) => {
     }
   };
 
+  const handleDeleteImage = async (imageUrl) => {
+    if (!imageUrl) {
+      toast.error("Invalid image URL");
+      return;
+    }
+  
+    try {
+      await imageApi.deleteGalleryImage(token, school?.id, imageUrl);
+      toast.success("Image deleted successfully!");
+  
+      // Remove deleted image from the state
+      setGalleryImages((prev) => prev.filter((img) => img !== imageUrl));
+  
+    } catch (error) {
+      console.error("Delete failed:", error);
+      toast.error("Could not delete image.");
+    }
+  };
+  
+  
+
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h3 className="text-lg font-semibold mb-4">Gallery</h3>
@@ -193,18 +216,36 @@ const GalleryForm = ({ school }) => {
           <div className="mt-4">
             <h3 className="text-lg font-semibold">Gallery Images</h3>
             <div className="flex flex-wrap gap-2 mt-2">
-              {galleryImages.length === 0 ? (
-                <p className="text-gray-500">No images uploaded</p>
-              ) : (
-                galleryImages.map((image, index) => (
-                  <img
-                    key={index}
-                    src={typeof image === "string" ? image : URL.createObjectURL(image)}
-                    alt={`Gallery ${index}`}
-                    className="w-24 h-24 object-cover rounded-md"
-                  />
-                ))
-              )}
+            {galleryImages.length === 0 ? (
+            <p className="text-gray-500">No images uploaded</p>
+          ) : (
+            galleryImages.map((image, index) => (
+              <div
+                key={index}
+                className="relative group w-24 h-24"
+              >
+                {/* Image */}
+                <img
+                  src={typeof image === "string" ? image : URL.createObjectURL(image)}
+                  alt={`Gallery ${index}`}
+                  className="w-full h-full object-cover rounded-md"
+                />
+
+                {/* Delete Button (only visible on hover) */}
+                <button
+                    onClick={() => handleDeleteImage(image)}
+                    className="absolute inset-0 flex items-center justify-center 
+                              bg-black bg-opacity-70 text-white opacity-0 
+                              group-hover:opacity-100 transition-opacity 
+                              duration-300 rounded-md"
+                  >
+                    <Trash2 size={24} color='white' />
+              </button>
+              </div>
+            ))
+          )}
+
+
             </div>
           </div>
         </div>

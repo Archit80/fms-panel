@@ -123,7 +123,29 @@ const imageApi = {
             console.error("Failed to get image", error.response?.data || error.message);
             throw error;
         }
+    },
+
+    deleteGalleryImage: async (token, schoolId, imageUrl) => {
+        setAuthHeader(token);
+    
+        if (!schoolId || !imageUrl) {
+            console.error("Missing schoolId or imageUrl for deletion");
+            return;
+        }
+    
+        try {
+            const response = await api.put(`private/remove/school-image`, null, { // Pass `null` as data
+                params: { id: schoolId, url: imageUrl },  // Params should be in config
+            });
+            
+            console.log("API Response:", response.data);
+            return response.data;
+        } catch (error) {
+            console.error("Failed to delete image", error.response?.data || error.message);
+            throw error;
+        }
     }
+    
     
 };
 
