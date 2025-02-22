@@ -26,7 +26,7 @@ function BlogList({onEditBlog, selectedBlog, onDeleteBlog, onCreateNewBlog}) {
     }, [pageNumber, totalBlogs]);
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container bg-gray-50 mx-auto p-4">
             <div className="w-full flex justify-between">
                 <div className="flex flex-col h-fit">
                     <h2 className="text-2xl font-bold">Blogs</h2>
@@ -46,18 +46,22 @@ function BlogList({onEditBlog, selectedBlog, onDeleteBlog, onCreateNewBlog}) {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {blogs.map((blog, index) => (
-                        <div key={blog.id} className="bg-white border rounded-lg p-4 shadow-sm">
+                        <div key={blog.id} className=" border flex flex-col justify-between bg-white gap-4 rounded-lg p-4">
+                           
                             <h3 className="text-lg font-semibold mb-2">
                                 {(pageNumber * pageSize) + index + 1}. {blog.title}
                             </h3>
-                            <p className="text-gray-800 mb-2 text-sm">{blog.body.substring(0, 70)}...</p>
-                            <div className="flex justify-between items-center">
+                            <div className=" ">
+                            <img src={blog.blogImageUrl} className="max-h-24" alt="BlogImage" />
+                            </div>
+                            {/* <p className="text-gray-800 mb-2 text-sm">{blog.body.substring(0, 70)}...</p> */}
+                            <div className="flex justify-between items-center h-full">
                                 <div className="flex flex-col">
-                                    <span
-                                        className="text-sm text-gray-500">Published on: {blog.publishedDate || 'Unknown'}</span>
+                                    <span className="text-sm text-gray-500">Published on: {blog.publishedDate || 'Unknown'}</span>
                                     <span className="text-sm text-gray-500">Author: {blog.author || 'Unknown'}</span>
+                                  
                                 </div>
-                                <div className="flex space-x-2">
+                                <div className="flex space-x-2 justify-center">
                                     <button
                                         onClick={() => onEditBlog(blog)}
                                         className="text-blue-500 hover:text-blue-700"

@@ -7,7 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-const BasicDetailsForm = ({ onSave, onClose, school }) => {
+const BasicDetailsForm = ({ onSave, school }) => {
   const [schoolName, setSchoolName] = useState(school ? school.schoolName : '');
   const [category, setCategory] = useState(school ? school.category : '');
   const [board, setBoard] = useState(school ? school.board : '');
@@ -61,15 +61,21 @@ const BasicDetailsForm = ({ onSave, onClose, school }) => {
     try {
       if (school&&school.id) {
         await schoolApi.updateSchool(token, school.id, schoolData);
-        toast.success("Class details updated successfully!");
+        toast.success("School details updated successfully!");
+
+          console.log("✅ `onSave` triggered in SchoolEditor");
+          // onSave(); // Check if this calls `onClose`
+
+
       } else {
         await schoolApi.createSchool(token, schoolData);
-        toast.success("Class details added successfully!");
+        toast.success("School details added successfully!");
       }
-      onSave();
+      // onSave();
     } catch (error) {
       console.error("Error creating school:", error);
     }
+
     console.log('🚀 Debug: school.id =', school?.id);
   console.log('🚀 Debug: Sending form data =', schoolData);
 
@@ -85,7 +91,7 @@ const BasicDetailsForm = ({ onSave, onClose, school }) => {
         <input 
           type="text" 
           value={schoolName} 
-          onChange={(e) => setSchoolName(e.target.value)} 
+          onChange={(e) => setSchoolName(e.target.value)}
           placeholder="School Name" 
           required 
           className={`border border-gray-300 rounded-md p-2 w-full ${school && school.id ? 'bg-gray-200 cursor-not-allowed' : ''}`}
@@ -122,7 +128,7 @@ const BasicDetailsForm = ({ onSave, onClose, school }) => {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             {allClasses.map((className) => (
               <label key={className} className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg cursor-pointer">
-                <input type="checkbox" value={className} checked={classesOffered.includes(className)} onChange={handleCheckboxChange} className="w-4 h-4 accent-blue-500"/>
+                <input type="checkbox" disabled={school && school.id} value={className} checked={classesOffered.includes(className)} onChange={handleCheckboxChange} className="w-4 h-4 accent-blue-500"/>
                 <span className="text-gray-700">{className}</span>
               </label>
             ))}
@@ -187,8 +193,8 @@ const BasicDetailsForm = ({ onSave, onClose, school }) => {
 };
 
 BasicDetailsForm.propTypes = {
-  onSave: PropTypes.func.isRequired,
-  onClose: PropTypes.func.isRequired,
+  // onSave: PropTypes.func.isRequired,
+
   school: PropTypes.object
 };
 

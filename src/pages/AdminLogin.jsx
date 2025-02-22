@@ -12,17 +12,15 @@ const AdminLogin = () => {
     password: ''
   });
    
+  const [errMsg, setErrMsg] = useState('');
+
   
     const handleChange = (e) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
 
-    // setToken(token); // Store token in context
-
-
-  
-
+    
 
   const handleSubmit = async  (e) => {
     e.preventDefault();
@@ -34,11 +32,13 @@ const AdminLogin = () => {
       // if (onLogin) {
       //   onLogin(); // Call onLogin only if token is present
       // }
+      setErrMsg('');
       console.log("✅ Logged in successfully!");
-
+      
       navigate('/blogs'); // Navigate to the blogs page
     } catch (error) {
-      alert('Email or password wrong');
+      // alert('Email or password wrong');
+      setErrMsg('You have entered a wrong email or password');
       console.error("Failed to Login", error);
     } finally {
     console.log('Form submitted:', formData);
@@ -70,7 +70,7 @@ const AdminLogin = () => {
               type="text"
               value={formData.email}
               onChange={handleChange}
-              placeholder="admin@findmyschool.com"
+              placeholder="Enter Email Address"
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
             />
@@ -86,11 +86,13 @@ const AdminLogin = () => {
               type="password"
               value={formData.password}
               onChange={handleChange}
+              placeholder="Enter Password"
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
             />
           </div>
-          
+          {/* <p className="text-red-600  text-m sfont-medium"> {errMsg} </p> */}
+          <p className="text-red-600  text-md sfont-medium"> {errMsg} </p>
           <button
             type="submit"
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"

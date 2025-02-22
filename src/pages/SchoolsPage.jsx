@@ -34,9 +34,9 @@ const SchoolsPage = () => {
           <SchoolEditor 
             school={currentSchool} 
             onClose={handleCloseEditor} 
-            onSave={() => {
-              handleCloseEditor();
-            }} 
+            onSave ={
+            ()=>{handleCloseEditor}  
+            }
           />
         ) : (
           <SchoolsList 

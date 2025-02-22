@@ -17,7 +17,6 @@ const SchoolEditor = ({ school, onSave, onClose }) => {
   const [activeSection, setActiveSection] = useState('basicDetails');
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedSchoolName, setEditedSchoolName] = useState(school?.schoolName || '');
-  
   const { token } = useAuth(); // Get token from Auth Context
 
   const sections = [
@@ -32,6 +31,10 @@ const SchoolEditor = ({ school, onSave, onClose }) => {
   useEffect(() => {
     setEditedSchoolName(school?.schoolName || '');
   }, [school]);
+
+  // useEffect(() => {
+  //   if (!activeSection) setActiveSection('basicDetails'); // Prevent resetting
+  // }, [school]);
 
   // Handle enabling edit mode
   const handleEditSchoolName = () => {
@@ -57,6 +60,9 @@ const SchoolEditor = ({ school, onSave, onClose }) => {
     }
   };
 
+  const handleFinalSubmit = ()=>{
+    onClose();
+  }
   return (
     <div className="flex">
       <div className="flex-1 p-6 bg-gray-100">
@@ -76,7 +82,7 @@ const SchoolEditor = ({ school, onSave, onClose }) => {
               )}
               
               {/* Edit or Save Button */}
-              { school &&school.id&&(
+              { school && school.id&&(
               <button onClick={isEditingName ? handleSaveSchoolName : handleEditSchoolName} className="ml-2 text-blue-500 hover:text-blue-700">
                 {isEditingName ? <CheckIcon className="h-5 w-5" /> : <PencilIcon className="h-5 w-5" />}
               </button>)}
@@ -97,14 +103,22 @@ const SchoolEditor = ({ school, onSave, onClose }) => {
               >
                 Cancel
               </button>
+              <button
+                type="submit"
+                onClick={handleFinalSubmit}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Final Submit
+              </button>
             </div>
           </div>
 
-          {activeSection === 'basicDetails' && <BasicDetailsForm onSave={onSave} onClose={onClose} school={school} />}
+          {activeSection === 'basicDetails' && <BasicDetailsForm school={school} />}
           {activeSection === 'overviewInfo' && <OverviewInfoForm onSave={onSave} onClose={onClose} school={school} />}
           {activeSection === 'eligibility' && <EligibilityForm onSave={onSave} onClose={onClose} school={school} />}
           {activeSection === 'facilities' && <FacilitiesForm onSave={onSave} onClose={onClose} school={school} />}
           {activeSection === 'feeStructure' && <FeeForm onSave={onSave} onClose={onClose} school={school} />}
+          {activeSection === 'gallery' && <GalleryForm onSave={onSave} onClose={onClose} school={school} />}
         </div>
       </div>
 
