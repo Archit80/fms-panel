@@ -185,6 +185,20 @@ const schoolApi = {
             );
             throw error;
         }
+    },
+
+    getSchoolById: async (token, id) => {
+        try {
+            setAuthHeader(token);
+            const response = await api.get(`/public/school/${id}`);
+            console.log(`School with ID ${id} fetched successfully`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error deleting School with ID ${id}:`,
+                error.response ? error.response.data : error.message
+            );
+            throw error;
+        }
     }
 };
 

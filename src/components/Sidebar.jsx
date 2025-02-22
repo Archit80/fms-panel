@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { HomeIcon, BookOpenIcon, AcademicCapIcon, TagIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
+import { DollarSign } from 'lucide-react';
 
 function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,6 +40,12 @@ function Sidebar() {
             <TagIcon className="h-5 w-5 inline-block mr-2" />
             Tags
           </Link>
+
+          <Link to="/leads" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">
+            <DollarSign className="h-5 w-5 inline-block mr-2" />
+            Leads
+          </Link>
+
         </nav>
       </div>
 

@@ -17,6 +17,15 @@ const OverviewInfoForm = ({ onSave, onClose, school }) => {
   
   const { token } = useAuth(); // Get token from context
 
+  const fetchUpdatedSchools = async () => {
+    try {
+      const updatedSchools = await schoolApi.getAllSchools();
+      setSchools(updatedSchools); // Update state with the new school list
+    } catch (error) {
+      console.error("Error fetching updated schools", error);
+    }
+  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,12 +43,22 @@ const OverviewInfoForm = ({ onSave, onClose, school }) => {
     try {
       // Call the API to save the overview data
       await schoolApi.updateOverview(token, school.id, overviewData);
-      // await onSave(); // Refresh the list
-      toast.success("Overview info updated successfully!");
+      await fetchUpdatedSchools();
 
+      // Update the local state with the new values
+      setContent(overviewData.content);
+      setOwnership(overviewData.ownership);
+      setYearOfEstablishment(overviewData.yearOfEstablishment);
+      setCampusSize(overviewData.campusSize);
+      setCampusType(overviewData.campusType);
+      setLanguageOfInteraction(overviewData.languageOfInteraction);
+      setAcademicSession(overviewData.academicSession);
+      setCoEdStatus(overviewData.coEdStatus);
+
+      toast.success("Overview info updated successfully!");
     } catch (error) {
       console.error("Failed to save overview information", error);
-      toast.error("Couldnt update Overview Info")
+      toast.error("Couldn't update Overview Info");
     }
   };
 

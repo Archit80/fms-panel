@@ -17,6 +17,11 @@ const BasicDetailsForm = ({ onSave, school }) => {
   const [schoolSite, setSchoolSite] = useState(school ? school.schoolSite : '');
   const [contact, setContact] = useState(school ? school.contact: '');
   const [address, setAddress] = useState(school ? school.address : '');
+
+  const [registrationFees, setRegistrationFees] = useState( school ? school.registrationFees: '' );
+  const [admissionFees, setAdmissionFees] = useState( school ? school.admissionFees: '');
+  const [securityFees, setSecurityFees] = useState( school ? school.securityFees: '');
+
   const [schoolVisible, setSchoolVisible] =  useState(school ? school.schoolVisible : false);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -56,7 +61,7 @@ const BasicDetailsForm = ({ onSave, school }) => {
   const handleSubmit = async (e) => {
 
     e.preventDefault();
-    const schoolData = { schoolName, category, classesOffered, board, state, city, address, schoolSite, email, contact, schoolVisible: Boolean(schoolVisible) };
+    const schoolData = { schoolName, category, classesOffered, board, state, city, address, schoolSite, email, contact, registrationFees, admissionFees, securityFees, schoolVisible: Boolean(schoolVisible) };
     console.log('sending form data as: ', schoolData);
     try {
       if (school&&school.id) {
@@ -64,7 +69,8 @@ const BasicDetailsForm = ({ onSave, school }) => {
         toast.success("School details updated successfully!");
 
           console.log("✅ `onSave` triggered in SchoolEditor");
-          // onSave(); // Check if this calls `onClose`
+          onSave(); // Check if this calls `onClose`
+          onclose();
 
 
       } else {
@@ -153,6 +159,13 @@ const BasicDetailsForm = ({ onSave, school }) => {
 
         <textarea value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Address" required className="border border-gray-300 rounded-md p-2 w-full h-32"/>
         
+          <input type="text" value={registrationFees} onChange={(e) => setRegistrationFees(e.target.value)} placeholder="Registration Fees" required className="border border-gray-300 rounded-md p-2 w-full"/>
+
+          <input type="text" value={admissionFees} onChange={(e) => setAdmissionFees(e.target.value)} placeholder="Admission Fees" required className="border border-gray-300 rounded-md p-2 w-full"/>
+
+          <input type="text" value={securityFees} onChange={(e) => setSecurityFees(e.target.value)} placeholder="Security Fees" required className="border border-gray-300 rounded-md p-2 w-full"/>
+          
+          
           {/* Toggle Switch */}
           <div className="flex items-center space-x-2">
       <span className="text-sm font-medium text-gray-700">
@@ -193,7 +206,8 @@ const BasicDetailsForm = ({ onSave, school }) => {
 };
 
 BasicDetailsForm.propTypes = {
-  // onSave: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 
   school: PropTypes.object
 };

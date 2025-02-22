@@ -8,7 +8,7 @@ import SchoolsPage from './pages/SchoolsPage';
 import TagsPage from './pages/TagsPage';
 import AdminLogin from "./pages/AdminLogin";
 import { AuthProvider } from './context/AuthContext'; // Import the AuthProvider
-
+import LeadsPage from "./pages/LeadsPage";
 
   //layout
 
@@ -47,6 +47,10 @@ const router = createBrowserRouter([
       {
         path: '/tags',
         element: <TagsPage />
+      },
+      {
+        path: '/leads',
+        element: <LeadsPage />
       },
       {
         path: '/blogs',

@@ -7,10 +7,10 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const FeeForm = ({ school, onSave }) => {
   const [selectedClass, setSelectedClass] = useState('');
-  const [registrationFees, setRegistrationFees] = useState({ fees: '', frequency: '' });
-  const [admissionFees, setAdmissionFees] = useState({ fees: '', frequency: '' });
+  // const [registrationFees, setRegistrationFees] = useState({ fees: '', frequency: '' });
+  // const [admissionFees, setAdmissionFees] = useState({ fees: '', frequency: '' });
+  // const [securityFees, setSecurityFees] = useState({ fees: '', frequency: '' });
   const [tuitionFees, setTuitionFees] = useState({ fees: '', frequency: '' });
-  const [securityFees, setSecurityFees] = useState({ fees: '', frequency: '' });
   const [annualFees, setAnnualFees] = useState({ fees: '', frequency: '' });
   const [othersFees, setOthersFees] = useState({ fees: '', frequency: '' });
   const [transportationFees, setTransportationFees] = useState({ fees: '', frequency: '' });
@@ -27,10 +27,10 @@ const FeeForm = ({ school, onSave }) => {
       const response = await schoolApi.getClassDetails(token, school.id, className);
       const data = response.data || {};
 
-      setRegistrationFees(data.registrationFees || { fees: '', frequency: '' });
-      setAdmissionFees(data.admissionFees || { fees: '', frequency: '' });
+      // setRegistrationFees(data.registrationFees || { fees: '', frequency: '' });
+      // setAdmissionFees(data.admissionFees || { fees: '', frequency: '' });
       setTuitionFees(data.tuitionFees || { fees: '', frequency: '' });
-      setSecurityFees(data.securityFees || { fees: '', frequency: '' });
+      // setSecurityFees(data.securityFees || { fees: '', frequency: '' });
       setAnnualFees(data.annualFees || { fees: '', frequency: '' });
       setOthersFees(data.othersFees || { fees: '', frequency: '' });
       setTransportationFees(data.transportationFees || { fees: '', frequency: '' });
@@ -44,10 +44,10 @@ const FeeForm = ({ school, onSave }) => {
       setIsEditing(false); // Class does not exist, so we add a new one
 
       if (error.response?.status === 404) {
-        setRegistrationFees({ fees: '', frequency: '' });
-        setAdmissionFees({ fees: '', frequency: '' });
+        // setRegistrationFees({ fees: '', frequency: '' });
+        // setAdmissionFees({ fees: '', frequency: '' });
         setTuitionFees({ fees: '', frequency: '' });
-        setSecurityFees({ fees: '', frequency: '' });
+        // setSecurityFees({ fees: '', frequency: '' });
         setAnnualFees({ fees: '', frequency: '' });
         setOthersFees({ fees: '', frequency: '' });
         setTransportationFees({ fees: '', frequency: '' });
@@ -74,10 +74,10 @@ const FeeForm = ({ school, onSave }) => {
 
     const classData = {
       className: selectedClass,
-      registrationFees,
-      admissionFees,
+      // registrationFees,
+      // admissionFees,
       tuitionFees,
-      securityFees,
+      // securityFees,
       annualFees,
       othersFees,
       transportationFees,
@@ -119,10 +119,10 @@ const FeeForm = ({ school, onSave }) => {
       </select>
 
       {[
-        { label: "Registration Fees", state: registrationFees, setter: setRegistrationFees },
-        { label: "Admission Fees", state: admissionFees, setter: setAdmissionFees },
+        // { label: "Registration Fees", state: registrationFees, setter: setRegistrationFees },
+        // { label: "Admission Fees", state: admissionFees, setter: setAdmissionFees },
         { label: "Tuition Fees", state: tuitionFees, setter: setTuitionFees },
-        { label: "Security Fees", state: securityFees, setter: setSecurityFees },
+        // { label: "Security Fees", state: securityFees, setter: setSecurityFees },
         { label: "Annual Fees", state: annualFees, setter: setAnnualFees },
         { label: "Other Fees", state: othersFees, setter: setOthersFees },
         { label: "Transportation Fees", state: transportationFees, setter: setTransportationFees },
