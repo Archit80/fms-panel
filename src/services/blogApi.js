@@ -2,6 +2,8 @@ import axios from 'axios';
 
 const BASE_URL = 'http://18.212.33.52:8080/api/v1/blogs';
 
+
+
 const api = axios.create({
     baseURL: BASE_URL,
     headers: {
