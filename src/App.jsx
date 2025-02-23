@@ -7,12 +7,18 @@ import BlogsPage from './pages/BlogsPage';
 import SchoolsPage from './pages/SchoolsPage';
 import TagsPage from './pages/TagsPage';
 import AdminLogin from "./pages/AdminLogin";
-
+import { AuthProvider } from './context/AuthContext'; // Import the AuthProvider
+import LeadsPage from "./pages/LeadsPage";
 
   //layout
 
   function RootLayout() {
     const location = useLocation();
+
+    const handleLogin = () => {
+        // Logic to handle login, e.g., set state or redirect
+        console.log("User logged in");
+    };
 
     return (
       <div className="flex h-screen w-full">
@@ -21,7 +27,7 @@ import AdminLogin from "./pages/AdminLogin";
 
          {/* Main content should take the rest of the available space */}
         <div className="flex-1 px-4 overflow-auto"> 
-          <Outlet /> {/* This will render BlogsPage, SchoolsPage, etc. */}
+          <Outlet context={{ onLogin: handleLogin }} /> {/* Pass onLogin to AdminLogin */}
         </div>
       </div>
     );
@@ -43,6 +49,10 @@ const router = createBrowserRouter([
         element: <TagsPage />
       },
       {
+        path: '/leads',
+        element: <LeadsPage />
+      },
+      {
         path: '/blogs',
         element: <BlogsPage />
       },
@@ -53,9 +63,9 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    // <ErrorBoundary>
-  <RouterProvider router = {router} />
-  // </ErrorBoundary>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   );
 }
 

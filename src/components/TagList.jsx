@@ -1,16 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import tagsApi from '../services/tagsApi'; 
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline"; // Import the icons
 import TagEditor from './TagEditor'; // Import the TagEditor component
+import { useAuth } from "../context/AuthContext";
 
 const TagList = () => {
+  const { token } = useAuth(); // Get token from context
   const [tags, setTags] = useState([]);
   const [isEditing, setIsEditing] = useState(false); // State to manage TagEditor visibility
   const [currentTag, setCurrentTag] = useState(null); // State to hold the current tag being edited
 
-  const fetchTags = async () => {
+  const fetchTags = useCallback(async () => {
     try {
-      const response = await tagsApi.getAllTags(); 
+      if (!token) {
+        console.error("No token found! Please login.");
+        alert('You are not permitted to access this page');
+        return;
+      }
+      const response = await tagsApi.getAllTags(token); 
       if (response.code === 200 && Array.isArray(response.data)) {
         setTags(response.data);
       } else {
@@ -19,7 +26,7 @@ const TagList = () => {
     } catch (error) {
       console.error("Failed to fetch tags", error);
     }
-  };
+  },[token]);
 
   const handleCreateNewTag = () => {
     setCurrentTag(null); // Clear current tag for new tag creation
@@ -45,12 +52,12 @@ const TagList = () => {
   const handleDeleteTag = async (tagName) => {
     if (window.confirm('Are you sure you want to delete this tag?')) {
       try {
-        await tagsApi.deleteTag(tagName); // Call the delete method from tagsApi
+        await tagsApi.deleteTag(token, tagName); // Call the delete method from tagsApi
         // Immediately fetch tags after deletion
         fetchTags(); // Refresh the tags list after deletion
       } catch (error) { 
         console.error("Failed to delete tag", error);
-        alert("An error occurred while deleting the tag. Please try again.");
+        alert("Can't delete tag because it is being used in some blog(s)");
         if (error.response) {
           alert(`Error: ${error.response.data.message || "Server returned an error."}`);
         }
@@ -60,7 +67,7 @@ const TagList = () => {
 
   useEffect(() => {
     fetchTags(); // Fetch tags when the component mounts
-  }, []);
+  }, [fetchTags]);
 
   return (
     <div className="container w-full mx-auto p-4">

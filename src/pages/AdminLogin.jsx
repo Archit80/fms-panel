@@ -1,36 +1,49 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import authApi from "../services/authApi";
+import { useNavigate } from "react-router-dom";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
-
+  const { login, setToken } = useAuth(); // Get both functions from AuthContext
+  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+   
+  const [errMsg, setErrMsg] = useState('');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-  };
+  
+    const handleChange = (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
 
-  const handleSubmit = (e) => {
+    
+
+  const handleSubmit = async  (e) => {
     e.preventDefault();
-    // Add your login logic here
-    if (formData.email === 'archit' && formData.password === '123456') {
-      // alert('Login Successful');
-      navigate('/blogs'); // Redirect to /blogs after successful login
-    } else {
-      alert('Invalid Credentials');
-    }
+ 
+    try {
+      const token = await authApi.login(formData); // Await the login response
+      login(token); // Set the token in context
+      setToken(token);
+      // if (onLogin) {
+      //   onLogin(); // Call onLogin only if token is present
+      // }
+      setErrMsg('');
+      console.log("✅ Logged in successfully!");
+      
+      navigate('/blogs'); // Navigate to the blogs page
+    } catch (error) {
+      // alert('Email or password wrong');
+      setErrMsg('You have entered a wrong email or password');
+      console.error("Failed to Login", error);
+    } finally {
     console.log('Form submitted:', formData);
+    }
   };
-
-
 
   return (
     <div className="relative min-h-screen flex items-center justify-center">
@@ -38,7 +51,7 @@ const AdminLogin = () => {
 
       {/* SVG Pattern overlay */}
       <div className="absolute inset-0" style={{ 
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234a90e2' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` 
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234a90e2' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
       }} />
 
       <div className="w-full max-w-md bg-white/95 backdrop-blur-sm rounded-lg shadow-xl relative z-10 p-6">
@@ -57,7 +70,7 @@ const AdminLogin = () => {
               type="text"
               value={formData.email}
               onChange={handleChange}
-              placeholder="admin@findmyschool.com"
+              placeholder="Enter Email Address"
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
             />
@@ -73,11 +86,13 @@ const AdminLogin = () => {
               type="password"
               value={formData.password}
               onChange={handleChange}
+              placeholder="Enter Password"
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
             />
           </div>
-          
+          {/* <p className="text-red-600  text-m sfont-medium"> {errMsg} </p> */}
+          <p className="text-red-600  text-md sfont-medium"> {errMsg} </p>
           <button
             type="submit"
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"

@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import tagsApi from '../services/tagsApi';
 import PropTypes from 'prop-types'; // Import PropTypes
+import { useAuth } from "../context/AuthContext";
 
 const TagEditor = ({ tag, onClose, onSave }) => {
+  const { token } = useAuth(); // Get token from context
+
   const [tagName, setTagName] = useState('');
 
   useEffect(() => {
@@ -17,15 +20,18 @@ const TagEditor = ({ tag, onClose, onSave }) => {
   e.preventDefault();
   try {
     if (tag) {
-      await tagsApi.updateTag(tag.tagName, tagName);
+      await tagsApi.updateTag(token, tag.tagName, tagName);
     } else {
-      await tagsApi.createTag(tagName);
+      await tagsApi.createTag(token, tagName);
+
     }
     
     await onSave(); // Wait for the tags list to refresh
     onClose();
   } catch (error) {
     console.error("Failed to save tag", error);
+    alert("A Tag with this name already exists")
+    // alert(error);
   }
 };
 

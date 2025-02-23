@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import schoolApi from '../../services/schoolApi';
+import { useAuth } from "../../context/AuthContext";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const OverviewInfoForm = ({ onSave, onClose, school }) => {
   const [content, setContent] = useState(school ? school.content : '');
@@ -11,6 +14,18 @@ const OverviewInfoForm = ({ onSave, onClose, school }) => {
   const [languageOfInteraction, setLanguageOfInteraction] = useState(school ? school.languageOfInteraction : '');
   const [academicSession, setAcademicSession] = useState(school ? school.academicSession : '');
   const [coEdStatus, setCoEdStatus] = useState(school ? school.coEdStatus : '');
+  
+  const { token } = useAuth(); // Get token from context
+
+  const fetchUpdatedSchools = async () => {
+    try {
+      const updatedSchools = await schoolApi.getAllSchools();
+      setSchools(updatedSchools); // Update state with the new school list
+    } catch (error) {
+      console.error("Error fetching updated schools", error);
+    }
+  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,16 +42,30 @@ const OverviewInfoForm = ({ onSave, onClose, school }) => {
 
     try {
       // Call the API to save the overview data
-      await schoolApi.updateOverview(school.id, overviewData);
-      await onSave(); // Refresh the list
-      onClose(); // Close the editor
+      await schoolApi.updateOverview(token, school.id, overviewData);
+      await fetchUpdatedSchools();
+
+      // Update the local state with the new values
+      setContent(overviewData.content);
+      setOwnership(overviewData.ownership);
+      setYearOfEstablishment(overviewData.yearOfEstablishment);
+      setCampusSize(overviewData.campusSize);
+      setCampusType(overviewData.campusType);
+      setLanguageOfInteraction(overviewData.languageOfInteraction);
+      setAcademicSession(overviewData.academicSession);
+      setCoEdStatus(overviewData.coEdStatus);
+
+      toast.success("Overview info updated successfully!");
     } catch (error) {
       console.error("Failed to save overview information", error);
+      toast.error("Couldn't update Overview Info");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="rounded-lg flex justify-center flex-col bg-white w-full shadow p-6">
+      <ToastContainer position="top-right" autoClose={5000}  />
+
       <h3 className="text-lg font-semibold mb-4">Overview Information</h3>
       <div className="space-y-4">
         <select 
