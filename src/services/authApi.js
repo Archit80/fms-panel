@@ -1,7 +1,7 @@
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 
-const BASE_URL = "http://18.212.33.52:8080/api/v1/auth";
+const BASE_URL = "https://api.findmyschool.net/api/v1/auth";
 
 const api = axios.create({
   baseURL: BASE_URL,

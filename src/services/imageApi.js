@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://18.212.33.52:8080/api/v1/s3/';
+const BASE_URL = 'https://api.findmyschool.net/api/v1/s3/';
 
 const api = axios.create({
     baseURL: BASE_URL,
