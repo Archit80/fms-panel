@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://api.findmyschool.net/v1/schools';
+const BASE_URL = 'https://api.findmyschool.net/api/v1/schools';
 
 const api = axios.create({
     baseURL: BASE_URL,
